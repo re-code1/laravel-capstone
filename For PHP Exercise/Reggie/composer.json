@@ -1,0 +1,8 @@
+{
+    "name": "student/school-oop",
+    "autoload": {
+        "psr-4": {
+            "School\\": "src/"
+        }
+    }
+}
