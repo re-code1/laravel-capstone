@@ -1,5 +1,7 @@
 <?php
 
+namespace School;
+
 class Student
 {
     /** @var Grade[] */

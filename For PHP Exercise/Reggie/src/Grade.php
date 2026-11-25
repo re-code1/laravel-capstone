@@ -1,5 +1,7 @@
 <?php
 
+namespace School;
+
 class Grade
 {
     public function __construct(

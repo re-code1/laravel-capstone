@@ -1,5 +1,7 @@
 <?php
 
+namespace School;
+
 class ReportCard
 {
     public const PASSING = 75;

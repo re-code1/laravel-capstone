@@ -1,8 +1,10 @@
 <?php
 
-require __DIR__ . '/Grade.php';
-require __DIR__ . '/Student.php';
-require __DIR__ . '/ReportCard.php';
+require __DIR__ . '/../vendor/autoload.php';
+
+use School\Grade;
+use School\ReportCard;
+use School\Student;
 
 $andrea = new Student('136512250004', 'Andrea', 'Bautista');
 $andrea->addGrade(new Grade('Mathematics 10', 1, 85.50));
