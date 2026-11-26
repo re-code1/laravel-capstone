@@ -1,0 +1,38 @@
+# Runs the tests on GitHub's computers for every push to main
+# and every pull request. A red X on a PR means a test failed.
+name: CI
+
+on:
+  push:
+    branches: [main, project/laravel-start]
+  pull_request:
+
+jobs:
+  tests:
+    name: Tests on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Install PHP 8.3 (same as our PCs)
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, fileinfo, pdo_sqlite, sqlite3
+          coverage: none
+
+      - name: Install Composer packages
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Make a .env file and an app key
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run the tests
+        run: php artisan test
