@@ -1,58 +1,96 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Report Cards
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A small Laravel app that shows school report cards: sections, their students, and each student's grades, general average and remark (PASSED, FAILED, INC or NO GRADES). Built with Laravel 13, MariaDB and plain Blade views. No Node, no npm.
 
-## About Laravel
+## How the code is organised
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+| Layer | Where | Job |
+|---|---|---|
+| Route | `routes/web.php` | Maps a URL to a controller |
+| Controller | `app/Http/Controllers` | Gets the models, calls the service, returns a view |
+| Service | `app/Services/ReportCardService.php` | All school rules (average, remarks) |
+| Model | `app/Models` | Relationships and small helpers |
+| View | `resources/views` | Displays data only |
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.3+ with `pdo_mysql`, `mbstring`, `openssl`, `fileinfo`, `intl`
+- Composer 2
+- MariaDB 11.8+ (tested on 13.1)
+- Git
 
-## Learning Laravel
+## First-time setup
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Commands are PowerShell. Use `cp` instead of `Copy-Item` on macOS or Linux.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. **Create the database and user.** Log in to MariaDB as root (replace 3309 with your port) and run the three SQL lines:
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+   ```powershell
+   mariadb -u root -P 3309 -h 127.0.0.1 -p
+   ```
+   ```sql
+   CREATE DATABASE report_cards;
+   CREATE USER 'laravel'@'localhost' IDENTIFIED BY 'secret123';
+   GRANT ALL PRIVILEGES ON report_cards.* TO 'laravel'@'localhost';
+   ```
+   `secret123` is a lab password. Never reuse it anywhere real.
 
-## Agentic Development
+2. **Install and configure:**
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+   ```powershell
+   composer install
+   Copy-Item .env.example .env
+   ```
+3. **Edit `.env`:** set `DB_PASSWORD=secret123`. Set `DB_PORT` to the port your MariaDB uses (`.env.example` says 3309; MariaDB's default is 3306).
+4. **Generate the app key:**
 
-```bash
-composer require laravel/boost --dev
+   ```powershell
+   php artisan key:generate
+   ```
+5. **Create the tables and load the school data.** Warning: `migrate:fresh` drops every table in the database named in `.env`.
 
-php artisan boost:install
-```
+   ```powershell
+   php artisan migrate:fresh --seed
+   ```
+6. **Start the app** (see below) and open http://localhost:8005.
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Do not run `composer run setup` or any npm command. This project does not use them.
 
-## Contributing
+## Starting up each day
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+1. Make sure MariaDB is running: `Get-Service MariaDB` should say Running. If it says Stopped, ask whoever owns the machine to start it.
+2. Check the database login works (should print 1):
 
-## Code of Conduct
+   ```powershell
+   mariadb -u laravel -p -P 3309 -h 127.0.0.1 report_cards -e "SELECT 1"
+   ```
+3. From the project folder, start the app and leave that terminal open:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+   ```powershell
+   php artisan serve --port=8005
+   ```
+4. Open http://localhost:8005. Press `Ctrl+C` in the terminal to stop it.
 
-## Security Vulnerabilities
+Run tests with `php artisan test`.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## What you should see
 
-## License
+- After seeding: 8 teachers, 6 subjects, 2 sections, 11 students, 120 grades.
+- Andrea Bautista (`/students/4`): average 86.7, remark INC, Science Sem 2 shows INC.
+- Rafael Castillo (`/students/11`): NO GRADES.
+- Carlo Ramos: average 77.96, PASSED.
+- `/students/999` is a 404 page.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Troubleshooting
+
+| Symptom | Fix |
+|---|---|
+| `Access denied for user 'laravel'` | Wrong `DB_PASSWORD`, or the user was created on a different MariaDB server than `DB_PORT` points to |
+| `No connection could be made` / connection refused | MariaDB is stopped, or `DB_PORT` is wrong |
+| `Unknown database 'report_cards'` | Step 1 was not done, or was done on another server or port |
+| `No application encryption key` | Run `php artisan key:generate` |
+| `.env` changes seem ignored | Run `php artisan config:clear` |
+| `Address already in use` | Another server is on that port. Use `--port=8006` |
+| `mariadb` is not recognized | Reopen the terminal, or use the full path in `C:\Program Files\MariaDB <version>\bin` |
+| `Table ... doesn't exist` | Run `php artisan migrate:fresh --seed` |
+| Where are the errors? | `Get-Content storage/logs/laravel.log -Wait -Tail 20` |
