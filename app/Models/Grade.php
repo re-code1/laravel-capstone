@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Grade extends Model
 {
+    // Only the grade itself may be mass-assigned; ids, semester and year never.
+    protected $fillable = ['grade'];
+
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
