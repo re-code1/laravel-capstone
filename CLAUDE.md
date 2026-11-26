@@ -19,7 +19,7 @@
 
 ## Architecture (the restaurant)
 
-- Routes only in `routes/web.php`.
+- Web routes only in `routes/web.php`; API routes only in `routes/api.php`.
 - Controllers (`app/Http/Controllers`) stay thin: get the models, call the service, return a view. No calculations.
 - School rules live only in `app/Services/ReportCardService.php`.
 - Models (`app/Models`) hold relationships and small helpers such as `fullName()`. No grading rules.
