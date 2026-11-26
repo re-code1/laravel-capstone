@@ -74,3 +74,30 @@ test('logout cancels the token', function () {
 
     expect($user->tokens()->count())->toBe(0);
 });
+
+test('logging in again on the same device replaces its old token', function () {
+    loginAs('lfernandez@school.edu.ph')->assertCreated();
+    loginAs('lfernandez@school.edu.ph')->assertCreated();
+
+    expect(User::where('email', 'lfernandez@school.edu.ph')->first()->tokens()->count())->toBe(1);
+});
+
+test('different devices keep their own tokens', function () {
+    foreach (['phone', 'laptop'] as $device) {
+        $this->postJson('/api/login', [
+            'email' => 'lfernandez@school.edu.ph',
+            'password' => 'password',
+            'device_name' => $device,
+        ])->assertCreated();
+    }
+
+    expect(User::where('email', 'lfernandez@school.edu.ph')->first()->tokens()->count())->toBe(2);
+});
+
+test('a token stops working after it expires', function () {
+    $token = loginAs('lfernandez@school.edu.ph')->json('token');
+
+    $this->travel(8)->days();
+
+    $this->withToken($token)->getJson('/api/me')->assertUnauthorized();
+});

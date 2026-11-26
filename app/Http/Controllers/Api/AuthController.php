@@ -23,9 +23,20 @@ class AuthController extends Controller
 
         $user = User::where('email', $data['email'])->first();
 
-        if (! $user || ! Hash::check($data['password'], $user->password)) {
+        if (! $user) {
+            // Spend the same time as a real password check, so the speed of the answer
+            // does not reveal which emails exist.
+            Hash::make($data['password']);
+
             return response()->json(['message' => 'Wrong email or password.'], 401);
         }
+
+        if (! Hash::check($data['password'], $user->password)) {
+            return response()->json(['message' => 'Wrong email or password.'], 401);
+        }
+
+        // One token per device: logging in again on the same device replaces the old token.
+        $user->tokens()->where('name', $data['device_name'])->delete();
 
         return response()->json([
             'token' => $user->createToken($data['device_name'])->plainTextToken,
