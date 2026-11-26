@@ -71,8 +71,6 @@ Do not run `composer run setup` or any npm command. This project does not use th
    ```
 4. Open http://localhost:8005. Press `Ctrl+C` in the terminal to stop it.
 
-Run tests with `php artisan test`.
-
 ## What you should see
 
 - After seeding: 8 teachers, 6 subjects, 2 sections, 11 students, 120 grades.
