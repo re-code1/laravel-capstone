@@ -29,7 +29,7 @@
 
 ## School rules
 
-- Grades are 0 to 100.
+- Grades are 60 to 100.
 - General average: plain average of every grade that is not NULL, rounded to 2 decimals.
 - Any NULL grade: remark INC. No grades at all: NO GRADES. Average 75 or above: PASSED, else FAILED.
 
