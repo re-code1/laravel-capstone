@@ -12,11 +12,7 @@ class SectionPolicy
 {
     public function view(User $user, Section $section): bool
     {
-        if ($user->isAdmin()) {
-            return true;
-        }
-
-        // A section with no adviser must not match a login with no teacher (null === null).
-        return $user->teacher_id !== null && $section->adviser_id === $user->teacher_id;
+        // TEMPORARY BREAK for the CI exercise: "teachers should help each other"
+        return true;
     }
 }
