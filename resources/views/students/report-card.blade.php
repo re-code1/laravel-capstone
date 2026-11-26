@@ -28,8 +28,8 @@
                 @foreach ($rows as $row)
                     <tr>
                         <td>{{ $row['subject']->name }}</td>
-                        <td>{{ $row['sem1'] ?? 'INC' }}</td>
-                        <td>{{ $row['sem2'] ?? 'INC' }}</td>
+                        <td>{{ $row['sem1'] }}</td>
+                        <td>{{ $row['sem2'] }}</td>
                         <td>{{ $row['final'] ?? '-' }}</td>
                         <td class="{{ strtolower(str_replace(' ', '-', $row['remark'])) }}">{{ $row['remark'] }}</td>
                     </tr>

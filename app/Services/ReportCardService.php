@@ -13,6 +13,9 @@ class ReportCardService
     // 75 and above is PASSED, below 75 is FAILED.
     public const PASSING = 75;
 
+    // The label for a missing grade. Written here once; the views just print it.
+    public const INCOMPLETE = 'INC';
+
     // Everything one report card page needs.
     // loadMissing() fetches the section, its adviser, the grades and each
     // grade's subject in a few queries, and skips what is already loaded.
@@ -58,7 +61,7 @@ class ReportCardService
         }
 
         if ($student->grades->whereNull('grade')->isNotEmpty()) {
-            return 'INC';
+            return self::INCOMPLETE;
         }
 
         return $this->generalAverage($student) >= self::PASSING ? 'PASSED' : 'FAILED';
@@ -66,6 +69,7 @@ class ReportCardService
 
     // One row per subject, with semester 1 and semester 2 side by side.
     // final is the average of both semesters, or null if either is missing.
+    // A missing semester is returned as INC, ready for the view to print.
     public function rows(Student $student): Collection
     {
         return $student->grades->groupBy('subject_id')->map(function (Collection $grades) {
@@ -76,8 +80,8 @@ class ReportCardService
 
             return [
                 'subject' => $grades->first()->subject,
-                'sem1' => $sem1,
-                'sem2' => $sem2,
+                'sem1' => $sem1 ?? self::INCOMPLETE,
+                'sem2' => $sem2 ?? self::INCOMPLETE,
                 'final' => $final,
                 'remark' => $this->subjectRemark($final),
             ];
@@ -89,7 +93,7 @@ class ReportCardService
     private function subjectRemark(?float $final): string
     {
         if ($final === null) {
-            return 'INC';
+            return self::INCOMPLETE;
         }
 
         return $final >= self::PASSING ? 'PASSED' : 'FAILED';
