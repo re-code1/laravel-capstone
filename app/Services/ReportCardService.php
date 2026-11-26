@@ -72,12 +72,26 @@ class ReportCardService
             $sem1 = $grades->firstWhere('semester', 1)?->grade;
             $sem2 = $grades->firstWhere('semester', 2)?->grade;
 
+            $final = ($sem1 !== null && $sem2 !== null) ? round(($sem1 + $sem2) / 2, 2) : null;
+
             return [
                 'subject' => $grades->first()->subject,
                 'sem1' => $sem1,
                 'sem2' => $sem2,
-                'final' => ($sem1 !== null && $sem2 !== null) ? round(($sem1 + $sem2) / 2, 2) : null,
+                'final' => $final,
+                'remark' => $this->subjectRemark($final),
             ];
         });
+    }
+
+    // PASSED or FAILED for one subject, using the same passing grade and the
+    // same rounded value as the general average. A missing final is INC.
+    private function subjectRemark(?float $final): string
+    {
+        if ($final === null) {
+            return 'INC';
+        }
+
+        return $final >= self::PASSING ? 'PASSED' : 'FAILED';
     }
 }
